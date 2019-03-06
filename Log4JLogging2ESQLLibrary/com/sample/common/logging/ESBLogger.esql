@@ -1,0 +1,37 @@
+BROKER SCHEMA com.sample.common.logging
+
+PATH com.sample.common.logging.helper;
+
+CREATE FUNCTION DebugLog(IN ReferenceToInputTree REFERENCE, IN InputRoot REFERENCE, IN ApplicationName CHAR, IN LogPosition CHAR)
+BEGIN
+	DECLARE options INTEGER BITOR(FolderBitStream, ValidateNone);
+	DECLARE wholeMessageBLOB BLOB;
+	DECLARE wholeMessageChar CHARACTER;
+	
+	SET wholeMessageBLOB = ASBITSTREAM(ReferenceToInputTree, COALESCE(InputRoot.Properties.Encoding, 437), COALESCE(InputRoot.Properties.CodedCharSetId, 1208),,,,options);
+	SET wholeMessageChar = CAST(wholeMessageBLOB AS CHARACTER CCSID COALESCE(InputRoot.Properties.CodedCharSetId, 1208) ENCODING COALESCE(InputRoot.Properties.Encoding, 437));
+	
+	SET wholeMessageChar = COALESCE(LogPosition, ' ') || ',' || COALESCE(wholeMessageChar, ' ');
+	
+	CALL LogDebug(wholeMessageChar, ApplicationName);
+END;
+
+CREATE FUNCTION InfoLog(IN LogMessage CHAR, IN ApplicationName CHAR, IN LogPosition CHAR)
+BEGIN
+	SET LogMessage = COALESCE(LogPosition, ' ') || ',' || COALESCE(LogMessage,' ');
+	CALL LogInfo(LogMessage, ApplicationName);
+END;
+
+CREATE FUNCTION ErrorLog(IN ReferenceToExceptionTree REFERENCE, IN InputRoot REFERENCE, IN ApplicationName CHAR, IN LogPosition CHAR)
+BEGIN
+	DECLARE options INTEGER BITOR(FolderBitStream, ValidateNone);
+	DECLARE wholeMessageBLOB BLOB;
+	DECLARE wholeMessageChar CHARACTER;
+	
+	SET wholeMessageBLOB = ASBITSTREAM(ReferenceToExceptionTree, COALESCE(InputRoot.Properties.Encoding, 437), COALESCE(InputRoot.Properties.CodedCharSetId, 1208),,,,options);
+	SET wholeMessageChar = CAST(wholeMessageBLOB AS CHARACTER CCSID COALESCE(InputRoot.Properties.CodedCharSetId, 1208) ENCODING COALESCE(InputRoot.Properties.Encoding, 437));
+	
+	SET wholeMessageChar = COALESCE(LogPosition, ' ') || ',' || COALESCE(wholeMessageChar, ' ');
+	
+	CALL LogError(wholeMessageChar, ApplicationName);
+END;

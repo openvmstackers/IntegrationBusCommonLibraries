@@ -1,0 +1,15 @@
+BROKER SCHEMA com.sample.common.logging.helper
+
+
+
+CREATE FUNCTION LogDebug(IN LogMessage CHAR, IN ApplicationName CHAR)
+LANGUAGE JAVA
+EXTERNAL NAME "com.sample.logging.ESBLogger.logDebug";
+
+CREATE FUNCTION LogInfo(IN LogMessage CHAR, IN ApplicationName CHAR)
+LANGUAGE JAVA
+EXTERNAL NAME "com.sample.logging.ESBLogger.logInfo";
+
+CREATE FUNCTION LogError(IN LogMessage CHAR, IN ApplicationName CHAR)
+LANGUAGE JAVA
+EXTERNAL NAME "com.sample.logging.ESBLogger.logError";
